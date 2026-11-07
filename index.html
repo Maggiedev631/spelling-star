@@ -1,0 +1,454 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<title>AMC 拼字之星</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Noto+Sans+TC:wght@400;700;900&display=swap">
+<style>
+/* Layout: one centered phone-width column of soft "sticker" cards on a pastel candy ground; Stella the star mascot reacts to answers */
+:root{
+  --bg1:#FFEFF6; --bg2:#E9F3FF; --dot:#FFD3E5; --ink:#4A3B6B; --muted:#8C7FA8; --card:#FFFFFF;
+  --pink:#FF6FA5; --pink-dk:#E04E88; --pink-lt:#FFE1EE; --mint:#3CCB9C; --mint-lt:#DDF8EE;
+  --sun:#FFC93C; --sun-lt:#FFF3CC; --lav:#A68BFF; --lav-lt:#EEE8FF; --bad:#FF6B6B; --line:#F1E4F0;
+  --display:"Fredoka","Noto Sans TC",system-ui,sans-serif; --body:"Noto Sans TC",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(var(--dot) 2px,transparent 2.5px) 0 0/26px 26px,linear-gradient(160deg,var(--bg1),var(--bg2));background-attachment:fixed;color:var(--ink);font-family:var(--body);font-size:16px;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:520px;margin:0 auto;padding-block:16px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:14px}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.logo{display:flex;align-items:center;gap:6px;font-family:var(--display);font-weight:700;font-size:23px;line-height:1;white-space:nowrap;flex:none}
+.logo svg{width:36px;height:36px;animation:wob 3s ease-in-out infinite}
+.logo b{color:var(--pink);font-weight:700}
+.who{font-size:13px;color:var(--muted);text-align:right;display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.who b{color:var(--ink)}
+.card{background:var(--card);border:3px solid var(--pink-lt);border-radius:28px;padding:20px 18px;box-shadow:0 8px 0 var(--pink-lt),0 14px 30px rgba(166,139,255,.18);position:relative}
+h2{font-family:var(--display);font-weight:700;font-size:23px;margin:0 0 10px;text-wrap:balance}
+.hello{display:flex;align-items:center;gap:12px}
+.hello svg{width:76px;height:76px;flex:none;animation:hop 2.4s ease-in-out infinite}
+.hello h2{margin:0}
+.bubble{background:var(--sun-lt);border-radius:18px;padding:10px 14px;position:relative;font-weight:700}
+.bubble:before{content:"";position:absolute;left:-8px;top:50%;margin-top:-8px;border:8px solid transparent;border-right-color:var(--sun-lt);border-left:0}
+.lbl{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.06em;margin:14px 0 6px}
+.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.chip{border:2.5px solid var(--line);background:#fff;color:var(--ink);border-radius:18px;padding:10px 8px;font:700 15px var(--body);cursor:pointer;text-align:center;transition:transform .15s,background .15s}
+.chip:hover{transform:translateY(-2px)}
+.chip small{display:block;font-weight:400;font-size:12px;color:var(--muted);margin-top:2px}
+.chip[aria-pressed="true"]{background:var(--pink-lt);border-color:var(--pink);color:var(--pink-dk)}
+.chip[aria-pressed="true"]:after{content:" ✓"}
+#modes .chip:nth-child(1)[aria-pressed="true"]{background:var(--sun-lt);border-color:var(--sun);color:#9A6A00}
+#modes .chip:nth-child(2)[aria-pressed="true"]{background:var(--mint-lt);border-color:var(--mint);color:#1E8A66}
+#modes .chip:nth-child(3)[aria-pressed="true"]{background:var(--lav-lt);border-color:var(--lav);color:#6B4FD8}
+.btn{border:0;background:var(--pink);color:#fff;border-radius:999px;padding:14px 20px;font:700 19px var(--display);cursor:pointer;box-shadow:0 5px 0 var(--pink-dk);transition:transform .1s}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--pink-dk)}
+.btn.ghost{background:#fff;color:var(--ink);box-shadow:0 5px 0 var(--line);border:2.5px solid var(--line)}
+.btn.ghost:active{box-shadow:0 1px 0 var(--line)}
+.btn.small{font-size:14px;padding:6px 14px;box-shadow:0 3px 0 var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>.btn{flex:1}
+input,select,textarea{font:16px var(--body);border:2.5px solid var(--line);border-radius:16px;padding:12px 14px;width:100%;background:#FFFBFD;color:var(--ink)}
+input:focus,select:focus,textarea:focus{border-color:var(--pink);outline:none;box-shadow:0 0 0 4px var(--pink-lt)}
+:focus-visible{outline:3px solid var(--lav);outline-offset:2px}
+.err{color:var(--bad);font-size:14px;min-height:1.2em;margin-top:6px}
+.note{font-size:13px;color:var(--muted)}
+.stats{display:flex;gap:8px}
+.stat{flex:1;border-radius:18px;padding:10px 6px;text-align:center;background:var(--sun-lt)}
+.stat:nth-child(2){background:var(--mint-lt)}.stat:nth-child(3){background:var(--lav-lt)}
+.stat b{display:block;font:700 26px var(--display);font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted)}
+/* game */
+.hud{display:flex;justify-content:space-between;align-items:center;font-weight:700;gap:8px}
+.hud .score{background:var(--sun-lt);border-radius:999px;padding:4px 12px;font-family:var(--display)}
+.bar{height:14px;background:var(--pink-lt);border-radius:999px;overflow:hidden;margin-top:10px;position:relative}
+.bar i{display:block;height:100%;background:repeating-linear-gradient(45deg,var(--pink) 0 10px,#FF8DB8 10px 20px);border-radius:999px;transition:width .4s}
+.prompt{text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:10px}
+.speak{width:100px;height:100px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,#FFE58A,var(--sun));box-shadow:0 6px 0 #E0A800,0 0 0 8px var(--sun-lt);cursor:pointer;display:grid;place-items:center;animation:pulse 2s ease-in-out infinite}
+.speak svg{width:46px;height:46px}
+.speak:active{transform:translateY(4px);box-shadow:0 2px 0 #E0A800,0 0 0 8px var(--sun-lt)}
+.zh{font-size:26px;font-weight:900}
+.pos{display:inline-block;background:var(--lav-lt);color:#6B4FD8;border-radius:8px;font-size:13px;padding:1px 6px;margin-right:6px;vertical-align:4px;font-weight:700}
+.slots{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin:6px 0 4px}
+.slot{width:32px;height:40px;border-radius:10px;background:var(--pink-lt);font:700 24px var(--display);display:grid;place-items:center;color:var(--ink)}
+.slot.on{background:#fff;border:2.5px solid var(--pink);animation:pop .2s}
+.slot.fixed{background:none;width:12px;color:var(--muted)}
+.slot.gap{background:none;width:12px}
+.slot.hint{border-color:var(--sun);background:var(--sun-lt)}
+#answer{font:700 24px var(--display);text-align:center;letter-spacing:1px;margin-top:6px}
+.shake{animation:shake .35s}
+.fb{min-height:64px;text-align:center;font-weight:700;font-size:17px;display:flex;align-items:center;justify-content:center;gap:10px}
+.fb svg{width:52px;height:52px;flex:none}
+.fb.ok{color:#1E8A66}.fb.no{color:var(--bad)}
+.fb .big{display:block;font:700 26px var(--display);color:var(--ink)}
+.fx{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:20}
+.fx i{position:absolute;font-style:normal;font-size:22px;animation:fly 1s ease-out forwards}
+/* lists */
+.lb{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.lb li{display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:8px;background:#FFFBFD;border:2.5px solid var(--line);border-radius:18px;padding:8px 12px}
+.lb li.me{border-color:var(--pink);background:var(--pink-lt)}
+.rk{font:700 20px var(--display);text-align:center;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--line)}
+.lb li:nth-child(1) .rk{background:var(--sun);color:#fff}.lb li:nth-child(2) .rk{background:#C9C3DB;color:#fff}.lb li:nth-child(3) .rk{background:#F2A97B;color:#fff}
+.pts{font:700 22px var(--display);font-variant-numeric:tabular-nums;text-align:right;color:var(--pink-dk)}
+.pts small{display:block;font:400 11px var(--body);color:var(--muted)}
+.tabs{display:flex;gap:6px;margin-bottom:12px}.tabs .chip{flex:1}
+.wrong{display:flex;flex-direction:column;gap:6px}
+.wrong div{display:flex;justify-content:space-between;gap:10px;background:var(--pink-lt);border-radius:12px;padding:6px 12px}
+.wrong b{font-family:var(--display);font-size:19px}
+.rate{display:flex;justify-content:center;gap:6px;margin:4px 0 10px}
+.rate svg{width:46px;height:46px}
+.rate svg.on{animation:pop .4s backwards}
+.rate svg:nth-child(2){animation-delay:.15s}.rate svg:nth-child(3){animation-delay:.3s}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left}
+.tw{overflow-x:auto}
+#qr{display:grid;place-items:center;padding:12px;background:#fff}
+.url{word-break:break-all;font-size:13px;background:var(--bg2);padding:8px;border-radius:10px}
+.confirm{border:2px dashed var(--bad);border-radius:14px;padding:10px;margin-top:8px}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes wob{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes fly{0%{opacity:1;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1.2) rotate(200deg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap" id="app">
+  <div class="brand"><div class="logo" id="logo">AMC <b>拼字之星</b></div><div class="who" id="who"></div></div>
+  <div id="view"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+/* ======== 設定：把 Firebase 網頁應用程式的設定貼在這裡 ======== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAWLvYbyhq4UBdBFLYDvFgqVjTkurIBXiU",
+  authDomain: "amc-spelling-star.firebaseapp.com",
+  projectId: "amc-spelling-star",
+  storageBucket: "amc-spelling-star.firebasestorage.app",
+  messagingSenderId: "93547096256",
+  appId: "1:93547096256:web:adef0633c4326beb30a525"
+};
+/* 每回合幾題 */
+const ROUND_SIZE = 10;
+/* ============================================================== */
+
+const WORDS = {"康軒": {"L3": {"title": "第三課", "list": [["living room", "名", "客廳"], ["bedroom", "名", "臥室"], ["bathroom", "名", "浴室"], ["dining room", "名", "飯廳"], ["behind", "介", "在……後面"], ["in front of", "介", "在……前面"], ["between", "介", "在……中間"], ["next to", "介", "在……旁邊（n___）"], ["near", "介", "在……附近"], ["please", "嘆", "請"], ["house", "名", "房子"], ["quiet", "形", "安靜的"], ["style", "名", "風格；款式"], ["idea", "名", "想法；點子"], ["let's...", "", "我們一起……吧"], ["get", "動", "獲得"], ["some", "形 代", "一些（的）"], ["tool", "名", "工具"], ["smartphone", "名", "智慧型手機"], ["step", "名", "步驟；一步"], ["upload", "動", "上傳"], ["photo", "名", "相片"], ["choose", "動", "選擇"], ["type", "名", "種類"], ["theme", "名", "主題"], ["wait", "動", "等待"], ["expensive", "形", "昂貴的"], ["with", "介", "對……來說；和"], ["question", "名", "問題"], ["I see.", "", "我了解了。"], ["soft", "形", "柔軟的"], ["hard", "形", "硬的"], ["in fact", "", "事實上"], ["around", "介 副", "圍繞；到處"], ["world", "名", "世界"], ["kitchen", "名", "廚房"], ["beside", "介", "在……旁邊（b___）"], ["ice", "名", "冰"], ["inside", "介 副", "在……裡面；在室內"], ["blanket", "名", "毛毯"]]}, "L4": {"title": "第四課", "list": [["listen", "動", "聽"], ["voice", "名", "聲音；歌喉"], ["stand up", "", "站起來"], ["sit down", "", "坐下"], ["take a photo", "", "拍照"], ["make", "動", "製造"], ["any", "形 代", "任何（的）"], ["noise", "名", "噪音"], ["can't", "助", "不能；不會；不可以（肯定形為 can）"], ["talk", "動", "講話"], ["noisy", "形", "吵鬧的"], ["late", "形", "晚的；遲到的"], ["early", "形", "早的；初期的"], ["sidewalk", "名", "人行道"], ["song", "名", "歌曲"], ["check out", "", "查看"], ["cross", "動", "跨越"], ["road", "名", "道路"], ["watch out", "", "小心；注意"], ["real", "形", "真的；真實的"], ["all the time", "", "一直"], ["Guess what?", "", "你猜怎麼著？"], ["traffic lights", "名", "紅綠燈（traffic 指「交通」）"], ["ground", "名", "地面"], ["design", "名 動", "設計"], ["user", "名", "使用者（use [juz] 指「使用」）"], ["download", "動", "下載"], ["warn", "動", "警告"], ["oncoming", "形", "迎面而來的"], ["crosswalk", "名", "斑馬線"], ["also", "副", "而且；也"], ["the USA", "名", "美國"], ["special", "形", "特別的"], ["lane", "名", "小路；小巷"], ["way", "名", "方式；方法；路"], ["other", "形", "其他的"]]}}, "翰林": {"U3": {"title": "Unit 3", "list": [["guy", "名", "人；傢伙"], ["magic", "形 名", "神奇的；魔法"], ["with", "介", "用；和"], ["can", "助", "可以；會"], ["many", "形 代", "許多（的）"], ["place", "名", "地方"], ["use", "動 名", "使用"], ["sure", "副 形", "當然；確定的"], ["let's...", "片", "讓我們一起……"], ["careful", "形", "小心的"], ["museum", "名", "博物館"], ["Hurry!", "句", "快點！"], ["please", "感", "請；拜託"], ["wait", "動", "等待"], ["man", "名", "男人"], ["now", "副", "現在"], ["or", "連", "或者"], ["time", "名", "次；時間"], ["wake up", "片", "醒來；叫醒…"], ["class", "名", "課；班級"], ["Oh my!", "句", "天哪！"], ["see", "動", "看見"], ["quiet", "形", "安靜的"], ["turn off", "片", "關掉"], ["sign", "名", "標誌"], ["talk", "動", "說話"], ["fight", "動 名", "吵架；打架"], ["turn", "名", "（依次輪到的）機會"], ["follow", "動", "遵守；跟隨"], ["rule", "名", "規則"], ["safe", "形", "安全的"], ["wash", "動", "清洗"], ["hand", "名", "手"], ["after class", "片", "下課後"], ["mummy", "名", "木乃伊"], ["rock", "名", "石塊"], ["dinosaur", "名", "恐龍"], ["lab", "名", "實驗室"]]}, "U4": {"title": "Unit 4", "list": [["music video", "名", "音樂影片"], ["band", "名", "樂團"], ["take a look", "片", "看一看"], ["all", "形", "所有的"], ["cute", "形", "可愛的"], ["great", "形", "棒的"], ["free", "形", "有空的"], ["weekend", "名", "週末"], ["Saturday", "名", "星期六"], ["together", "副", "一起"], ["ready", "形", "準備好的"], ["p.m.", "副", "下午；晚上"], ["o'clock", "副", "…點鐘"], ["day", "名", "日；天"], ["today", "副 名", "今天"], ["Friday", "名", "星期五"], ["Sunday", "名", "星期日"], ["Monday", "名", "星期一"], ["Tuesday", "名", "星期二"], ["Wednesday", "名", "星期三"], ["Thursday", "名", "星期四"], ["week", "名", "週；星期"], ["a.m.", "副", "上午；凌晨"], ["study", "動", "研讀"], ["English", "名", "英文"], ["take a walk", "片", "散步"], ["movie", "名", "電影"], ["take a picture", "片", "拍照"], ["party", "名", "派對；宴會"], ["report", "動 名", "報導"], ["popular", "形", "受歡迎的"], ["fan", "名", "…迷"], ["shake hands", "片", "握手"], ["everyone", "代", "每個人（= everybody）"], ["sign", "動", "簽名"], ["K-pop", "名", "韓國流行音樂（= Korean popular music）"], ["concert", "名", "音樂會；演唱會"], ["meet-and-greet", "名", "見面會"], ["stage", "名", "舞台"]]}}};
+const MODES = {
+  listen:{name:"聽發音拼字",desc:"只聽發音",full:12,half:6},
+  zh:{name:"看中文拼字",desc:"只看中文",full:10,half:5},
+  both:{name:"聽＋看拼字",desc:"發音＋中文",full:8,half:4}
+};
+const HINT_COST = 3;
+const SAY = {"p.m.":"P M","a.m.":"A M","the USA":"the U S A","let's...":"let's","K-pop":"K pop","meet-and-greet":"meet and greet","Guess what?":"Guess what"};
+
+const $ = s => document.querySelector(s);
+const view = $("#view");
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const store = {get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const shuffle = a => {a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const norm = s => s.toLowerCase().replace(/[’‘`]/g,"'").replace(/[.?!…,]/g,"").replace(/\s+/g," ").trim();
+async function sha(s){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+
+
+/* ---------- 吉祥物：星星 Stella ---------- */
+function star(mood="happy"){
+  const face={happy:`<path d="M40 52q10 9 20 0" stroke="#4A3B6B" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="38" cy="42" r="4.2" fill="#4A3B6B"/><circle cx="62" cy="42" r="4.2" fill="#4A3B6B"/><circle cx="39.5" cy="40.5" r="1.4" fill="#fff"/><circle cx="63.5" cy="40.5" r="1.4" fill="#fff"/>`,
+    wow:`<path d="M33 42q5-6 10 0M57 42q5-6 10 0" stroke="#4A3B6B" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M41 50q9 12 18 0z" fill="#4A3B6B"/><path d="M45 55q5 3 10 0" fill="#FF6FA5"/>`,
+    sad:`<circle cx="38" cy="43" r="4" fill="#4A3B6B"/><circle cx="62" cy="43" r="4" fill="#4A3B6B"/><path d="M42 57q8-6 16 0" stroke="#4A3B6B" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M66 48q3 6 0 8q-3-2 0-8z" fill="#7FC8FF"/>`}[mood];
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 6c4 0 6 3 8 8l7 15 16 2c6 1 9 3 10 6s-1 6-5 10L74 58l3 17c1 6 0 9-3 11s-6 1-11-2L50 77l-13 7c-5 3-8 4-11 2s-4-5-3-11l3-17L14 47c-4-4-6-7-5-10s4-5 10-6l16-2 7-15c2-5 4-8 8-8z" fill="#FFC93C" stroke="#F0A800" stroke-width="3" stroke-linejoin="round"/><ellipse cx="29" cy="52" rx="6" ry="4" fill="#FF9EC4" opacity=".8"/><ellipse cx="71" cy="52" rx="6" ry="4" fill="#FF9EC4" opacity=".8"/>${face}</svg>`;
+}
+const starIcon=on=>`<svg viewBox="0 0 24 24" class="${on?"on":""}"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17l-5.9 3.3 1.3-6.5L2.5 9.3l6.6-.8z" fill="${on?"#FFC93C":"#F1E4F0"}" stroke="${on?"#F0A800":"#E2D3E6"}" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+function burst(){
+  if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+  const fx=document.createElement("div");fx.className="fx";const r=$("#answer").getBoundingClientRect();
+  const sym=["⭐","✨","💖","🌟","🎀"];
+  for(let k=0;k<16;k++){const i=document.createElement("i");i.textContent=sym[k%sym.length];const ang=Math.random()*Math.PI*2,d=80+Math.random()*90;
+    i.style.left=(r.left+r.width/2)+"px";i.style.top=(r.top)+"px";i.style.setProperty("--x",Math.cos(ang)*d+"px");i.style.setProperty("--y",Math.sin(ang)*d-40+"px");fx.appendChild(i)}
+  document.body.appendChild(fx);setTimeout(()=>fx.remove(),1100);
+}
+document.getElementById("logo").insertAdjacentHTML("afterbegin",star());
+
+/* ---------- Firebase (只有填了設定才載入) ---------- */
+let fb = null; // {db, auth, FV}
+const ONLINE = !!FIREBASE_CONFIG.apiKey;
+function loadScript(src){return new Promise((ok,no)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
+async function initFirebase(){
+  if(!ONLINE) return null;
+  const v="10.12.2", base=`https://www.gstatic.com/firebasejs/${v}/`;
+  await loadScript(base+"firebase-app-compat.js");
+  await Promise.all([loadScript(base+"firebase-firestore-compat.js"),loadScript(base+"firebase-auth-compat.js")]);
+  firebase.initializeApp(FIREBASE_CONFIG);
+  fb = {db:firebase.firestore(), auth:firebase.auth(), FV:firebase.firestore.FieldValue};
+  return fb;
+}
+
+/* ---------- 狀態 ---------- */
+let me = store.get("amc_spell_me"); // {id,name,book}
+let pick = store.get("amc_spell_pick") || {};
+function setWho(){
+  $("#who").innerHTML = me ? `${esc(me.book)}｜<b>${esc(me.name)}</b><button class="btn ghost small" id="logout">登出</button>` : "";
+  if(me) $("#logout").onclick=()=>{me=null;store.set("amc_spell_me",null);route()};
+}
+
+/* ---------- 登入 ---------- */
+async function loginView(){
+  setWho();
+  let book = pick.book || "康軒";
+  view.innerHTML = `<div class="card"><div class="hello">${star("wow")}<div class="bubble">一起來當拼字之星吧！</div></div>
+    <div class="lbl">選擇你的課本</div>
+    <div class="seg" id="books">${Object.keys(WORDS).map(b=>`<button class="chip" data-b="${b}" aria-pressed="${b===book}">${b}</button>`).join("")}</div>
+    <div class="lbl">你的英文名字</div>
+    ${ONLINE?`<select id="name"><option value="">載入名單中…</option></select>`:`<input id="name" placeholder="例如 Oliver" autocomplete="off">`}
+    ${ONLINE?`<div class="lbl">家長手機末 4 碼</div><input id="pin" inputmode="numeric" maxlength="4" pattern="[0-9]*" placeholder="••••">`:""}
+    <div class="err" id="err"></div>
+    <button class="btn" id="go" style="width:100%;margin-top:6px">開始練習</button>
+    ${ONLINE?"":`<p class="note">目前是試玩模式：分數只存在這台裝置。老師接上 Firebase 後就會有班級排行榜。</p>`}
+  </div>`;
+  const fill = async()=>{
+    if(!ONLINE) return;
+    const sel=$("#name"); sel.innerHTML=`<option value="">載入名單中…</option>`;
+    try{
+      const snap = await fb.db.collection("roster").where("book","==",book).get();
+      const list = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.name.localeCompare(b.name));
+      sel.innerHTML = `<option value="">— 選你的名字 —</option>`+list.map(s=>`<option value="${s.id}" data-n="${esc(s.name)}" data-h="${s.pin}">${esc(s.name)}</option>`).join("");
+      if(!list.length) sel.innerHTML=`<option value="">這個課本還沒有名單，請找老師</option>`;
+    }catch(e){$("#err").textContent="名單載入失敗，請檢查網路後重新整理。"}
+  };
+  view.querySelectorAll("#books .chip").forEach(c=>c.onclick=()=>{book=c.dataset.b;view.querySelectorAll("#books .chip").forEach(x=>x.setAttribute("aria-pressed",x===c));fill()});
+  fill();
+  $("#go").onclick = async()=>{
+    const err=$("#err"); err.textContent="";
+    if(!ONLINE){const n=$("#name").value.trim(); if(!n){err.textContent="請輸入名字";return} me={id:"local_"+n,name:n,book}}
+    else{
+      const o=$("#name").selectedOptions[0]; if(!o||!o.value){err.textContent="請選你的名字";return}
+      const pin=$("#pin").value.trim(); if(!/^\d{4}$/.test(pin)){err.textContent="請輸入 4 位數字";return}
+      if(await sha(book+"|"+o.dataset.n+"|"+pin)!==o.dataset.h){err.textContent="號碼不對，再試一次";return}
+      me={id:o.value,name:o.dataset.n,book};
+    }
+    store.set("amc_spell_me",me); pick.book=book; store.set("amc_spell_pick",pick); route();
+  };
+}
+
+/* ---------- 首頁 ---------- */
+async function homeView(){
+  setWho();
+  const units = WORDS[me.book]; const keys=Object.keys(units);
+  let unit = keys.includes(pick.unit)?pick.unit:keys[keys.length-1];
+  let mode = MODES[pick.mode]?pick.mode:"both";
+  view.innerHTML = `<div class="card">
+    <div class="hello">${star()}<div><h2>嗨，${esc(me.name)}！</h2><div class="note">今天要挑戰哪一課呢？</div></div></div>
+    <div style="height:12px"></div>
+    <div class="stats"><div class="stat"><b id="tot">–</b><span>累積積分</span></div><div class="stat"><b id="rnd">–</b><span>已玩回合</span></div><div class="stat"><b id="best">–</b><span>本課最高分</span></div></div>
+    <div class="lbl">課次</div>
+    <div class="seg" id="units">${keys.map(k=>`<button class="chip" data-u="${k}" aria-pressed="${k===unit}">${me.book} ${units[k].title}<small>${units[k].list.length} 個單字</small></button>`).join("")}</div>
+    <div class="lbl">玩法</div>
+    <div class="seg" id="modes">${Object.entries(MODES).map(([k,m])=>`<button class="chip" data-m="${k}" aria-pressed="${k===mode}">${m.name}<small>${m.desc}・答對 ${m.full} 分</small></button>`).join("")}</div>
+    <p class="note">每回合 ${ROUND_SIZE} 題。第一次就答對拿滿分，第二次答對拿一半；用提示每次扣 ${HINT_COST} 分。</p>
+    <div class="row"><button class="btn" id="start">開始！</button><button class="btn ghost" id="board">排行榜</button></div>
+  </div>`;
+  const sel=(id,attr,set)=>view.querySelectorAll(id+" .chip").forEach(c=>c.onclick=()=>{set(c.dataset[attr]);view.querySelectorAll(id+" .chip").forEach(x=>x.setAttribute("aria-pressed",x===c));showStats()});
+  sel("#units","u",v=>unit=v); sel("#modes","m",v=>mode=v);
+  $("#start").onclick=()=>{pick.unit=unit;pick.mode=mode;store.set("amc_spell_pick",pick);gameView(unit,mode)};
+  $("#board").onclick=()=>{pick.unit=unit;store.set("amc_spell_pick",pick);boardView(unit)};
+  async function showStats(){
+    const s = await myStats(unit); $("#tot").textContent=s.points; $("#rnd").textContent=s.rounds; $("#best").textContent=s.best;
+  }
+  showStats();
+}
+async function myStats(unit){
+  if(!ONLINE){const L=store.get("amc_spell_local")||[];const mine=L.filter(r=>r.sid===me.id);return {points:mine.reduce((a,r)=>a+r.score,0),rounds:mine.length,best:Math.max(0,...mine.filter(r=>r.unit===unit).map(r=>r.score))}}
+  try{
+    const t = await fb.db.collection("totals").doc(me.id).get();
+    const sc = await fb.db.collection("scores").where("sid","==",me.id).get();
+    const best = Math.max(0,...sc.docs.map(d=>d.data()).filter(r=>r.unit===unit).map(r=>r.score));
+    const d=t.exists?t.data():{points:0,rounds:0}; return {points:d.points||0,rounds:d.rounds||0,best};
+  }catch(e){return {points:"?",rounds:"?",best:"?"}}
+}
+
+/* ---------- 發音 ---------- */
+let voice=null;
+function pickVoice(){const vs=speechSynthesis.getVoices();voice=vs.find(v=>/en[-_]US/i.test(v.lang)&&/samantha|google|aria|jenny/i.test(v.name))||vs.find(v=>/en[-_]US/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}
+if("speechSynthesis" in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function speak(w,slow){
+  if(!("speechSynthesis" in window)) return false;
+  speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(SAY[w]||w); u.lang="en-US"; if(voice)u.voice=voice; u.rate=slow?0.55:0.85; speechSynthesis.speak(u); return true;
+}
+const speakerSVG=`<svg viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="#1B2A4A"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>`;
+
+/* ---------- 遊戲 ---------- */
+function gameView(unit,mode){
+  const M=MODES[mode]; const qs=shuffle(WORDS[me.book][unit].list).slice(0,ROUND_SIZE);
+  let i=0, score=0, tries=0, hints=0, correct=0, locked=false; const wrong=[]; const t0=Date.now();
+  view.innerHTML=`<div class="card">
+    <div class="hud"><span id="prog"></span><span class="score">⭐ <span id="sc">0</span> 分</span><button class="btn ghost small" id="quit">離開</button></div>
+    <div class="bar"><i id="barf" style="width:0"></i></div>
+    <div class="prompt" id="prompt"></div>
+    <div class="slots" id="slots"></div>
+    <input id="answer" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="在這裡拼出單字">
+    <div class="fb" id="fb"></div>
+    <div class="row"><button class="btn ghost" id="hint">提示 −${HINT_COST}</button><button class="btn" id="ok">送出</button></div>
+  </div>`;
+  $("#quit").onclick=()=>{speechSynthesis?.cancel();route()};
+  const inp=$("#answer");
+  function render(){
+    const [w,p,z]=qs[i]; tries=0; hints=0; locked=false; inp.value=""; $("#fb").className="fb"; $("#fb").textContent="";
+    $("#prog").textContent=`第 ${i+1} / ${qs.length} 題`; $("#barf").style.width=(i/qs.length*100)+"%";
+    const showZh=mode!=="listen", showSp=mode!=="zh";
+    $("#prompt").innerHTML=(showSp?`<button class="speak" id="say" aria-label="播放發音">${speakerSVG}</button><div class="row" style="justify-content:center"><button class="btn ghost small" id="slow">慢慢唸</button></div>`:"")+
+      (showZh?`<div class="zh">${p?p.split(" ").map(x=>`<span class="pos">${x}</span>`).join(""):""}${esc(z)}</div>`:"");
+    if(showSp){$("#say").onclick=()=>{speak(w)||noVoice()};$("#slow").onclick=()=>speak(w,true);speak(w)}
+    drawSlots(); inp.focus();
+  }
+  function noVoice(){$("#fb").className="fb no";$("#fb").textContent="這台裝置不能播放發音，請改玩「看中文拼字」"}
+  function letters(s){return s.replace(/[^a-zA-Z]/g,"")}
+  function drawSlots(hintN){
+    const w=qs[i][0]; const typed=letters(inp.value); let k=0;
+    $("#slots").innerHTML=[...w].map(ch=>{
+      if(/[a-zA-Z]/.test(ch)){const c=typed[k]||"";const h=k<hints;k++;return `<span class="slot${c?" on":""}${h?" hint":""}">${esc(c)}</span>`}
+      if(ch===" ") return `<span class="slot gap"></span>`;
+      return `<span class="slot fixed">${esc(ch)}</span>`;
+    }).join("");
+  }
+  inp.oninput=()=>drawSlots();
+  inp.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();submit()}};
+  $("#ok").onclick=submit;
+  $("#hint").onclick=()=>{
+    if(locked||waiting)return; const w=qs[i][0]; const L=letters(w); if(hints>=L.length-1)return;
+    hints++; // 顯示正確的前 hints 個字母（含中間的空格符號）
+    let k=0,out=""; for(const ch of w){if(k>=hints)break; out+=ch; if(/[a-zA-Z]/.test(ch))k++}
+    inp.value=out; drawSlots(); inp.focus();
+  };
+  let waiting=false;
+  function submit(){
+    if(waiting){waiting=false;$("#ok").textContent="送出";return next()}
+    if(locked)return; const [w]=qs[i]; const fbEl=$("#fb");
+    if(!inp.value.trim()){inp.focus();return}
+    if(norm(inp.value)===norm(w)){
+      const base=tries===0?M.full:M.half; const got=Math.max(0,base-hints*HINT_COST); score+=got; correct++; locked=true;
+      fbEl.className="fb ok"; fbEl.innerHTML=`${star("wow")}<span><span class="big">${esc(w)}</span>答對了！+${got} 分</span>`; burst(); $("#sc").textContent=score;
+      if(mode==="zh")speak(w);
+      setTimeout(next,1300);
+    }else{
+      tries++;
+      if(tries<2){fbEl.className="fb no";fbEl.innerHTML=`${star("sad")}<span>差一點點！再試一次</span>`;const c=$("#app .card");c.classList.remove("shake");void c.offsetWidth;c.classList.add("shake");inp.select()}
+      else{locked=true;waiting=true;wrong.push(qs[i]);fbEl.className="fb no";fbEl.innerHTML=`${star("sad")}<span>正確答案是<span class="big">${esc(w)}</span></span>`;speak(w);$("#ok").textContent="下一題"}
+    }
+  }
+  function next(){i++; if(i>=qs.length) return finish(); render()}
+  async function finish(){
+    const ms=Date.now()-t0; $("#barf").style.width="100%";
+    const rec={sid:me.id,name:me.name,book:me.book,unit,key:me.book+"_"+unit,mode,score,correct,total:qs.length,ms,at:Date.now()};
+    let saved=true;
+    if(ONLINE){try{
+      await fb.db.collection("scores").add(rec);
+      await fb.db.collection("totals").doc(me.id).set({name:me.name,book:me.book,points:fb.FV.increment(score),rounds:fb.FV.increment(1),updatedAt:Date.now()},{merge:true});
+    }catch(e){saved=false}}
+    else{const L=store.get("amc_spell_local")||[];L.push(rec);store.set("amc_spell_local",L)}
+    resultView(rec,wrong,saved);
+  }
+  render();
+}
+
+function resultView(r,wrong,saved){
+  const max=r.total*MODES[r.mode].full; const pct=r.score/max;
+  const msg=pct>=.9?"太厲害了！拼字之星就是你！":pct>=.7?"很棒！再玩一次衝更高分":pct>=.4?"不錯喔，把錯的字再看一次":"多練幾次就會越來越熟！";
+  const n=pct>=.9?3:pct>=.6?2:pct>=.3?1:0;
+  view.innerHTML=`<div class="card"><div class="rate">${[1,2,3].map(k=>starIcon(k<=n)).join("")}</div><div class="hello">${star(n>=2?"wow":n?"happy":"sad")}<div class="bubble">${msg}</div></div><div style="height:12px"></div>
+    <div class="stats"><div class="stat"><b>${r.score}</b><span>本回得分 / ${max}</span></div><div class="stat"><b>${r.correct}/${r.total}</b><span>答對題數</span></div><div class="stat"><b>${Math.round(r.ms/1000)}s</b><span>花費時間</span></div></div>
+    ${saved?"":`<p class="err">分數沒有存到排行榜（網路問題），請截圖給老師。</p>`}
+    ${wrong.length?`<div class="lbl">要再複習的單字</div><div class="wrong">${wrong.map(([w,p,z])=>`<div><b>${esc(w)}</b><span>${esc(z)}</span></div>`).join("")}</div>`:`<p class="note">全部第一次或第二次就答對，沒有錯字！</p>`}
+    <div class="row" style="margin-top:14px"><button class="btn" id="again">再玩一次</button><button class="btn ghost" id="board">排行榜</button></div>
+    <button class="btn ghost small" id="home" style="margin-top:10px">回首頁</button></div>`;
+  $("#again").onclick=()=>gameView(r.unit,r.mode); $("#board").onclick=()=>boardView(r.unit); $("#home").onclick=route;
+}
+
+/* ---------- 排行榜 ---------- */
+async function boardView(unit){
+  setWho(); let tab="best";
+  const title=`${me.book} ${WORDS[me.book][unit].title}`;
+  view.innerHTML=`<div class="card"><div class="hello">${star("wow")}<h2>排行榜</h2></div><div style="height:12px"></div>
+    <div class="tabs"><button class="chip" data-t="best" aria-pressed="true">${esc(title)} 最高分</button><button class="chip" data-t="total" aria-pressed="false">${me.book} 累積積分</button></div>
+    <ul class="lb" id="lb"><li><span></span><span class="note">載入中…</span><span></span></li></ul>
+    <div class="row" style="margin-top:14px"><button class="btn" id="home">回首頁</button></div></div>`;
+  $("#home").onclick=route;
+  view.querySelectorAll(".tabs .chip").forEach(c=>c.onclick=()=>{tab=c.dataset.t;view.querySelectorAll(".tabs .chip").forEach(x=>x.setAttribute("aria-pressed",x===c));load()});
+  async function load(){
+    const lb=$("#lb"); let rows=[];
+    try{
+      if(tab==="best"){
+        let recs; if(ONLINE){const s=await fb.db.collection("scores").where("key","==",me.book+"_"+unit).get();recs=s.docs.map(d=>d.data())}else recs=(store.get("amc_spell_local")||[]).filter(r=>r.key===me.book+"_"+unit);
+        const best={}; for(const r of recs){const b=best[r.sid]; if(!b||r.score>b.score||(r.score===b.score&&r.ms<b.ms))best[r.sid]=r}
+        rows=Object.values(best).sort((a,b)=>b.score-a.score||a.ms-b.ms).map(r=>({sid:r.sid,name:r.name,v:r.score,sub:`${MODES[r.mode]?.name||""}・${Math.round(r.ms/1000)} 秒`}));
+      }else{
+        if(ONLINE){const s=await fb.db.collection("totals").where("book","==",me.book).get();rows=s.docs.map(d=>({sid:d.id,...d.data()}))}
+        else{const m={};for(const r of store.get("amc_spell_local")||[]){if(r.book!==me.book)continue;m[r.sid]=m[r.sid]||{sid:r.sid,name:r.name,points:0,rounds:0};m[r.sid].points+=r.score;m[r.sid].rounds++}rows=Object.values(m)}
+        rows=rows.sort((a,b)=>b.points-a.points).map(r=>({sid:r.sid,name:r.name,v:r.points,sub:`玩了 ${r.rounds} 回`}));
+      }
+    }catch(e){lb.innerHTML=`<li><span></span><span class="err">排行榜載入失敗，請稍後再試。</span><span></span></li>`;return}
+    lb.innerHTML=rows.length?rows.slice(0,30).map((r,k)=>`<li class="${r.sid===me.id?"me":""}"><span class="rk">${k+1}</span><span><b>${esc(r.name)}</b>${r.sid===me.id?"（你）":""}<br><span class="note">${esc(r.sub)}</span></span><span class="pts">${r.v}<small>分</small></span></li>`).join(""):`<li><span></span><span class="note">還沒有人上榜，快去搶第一名！</span><span></span></li>`;
+  }
+  load();
+}
+
+/* ---------- 老師後台（網址後面加 #teacher） ---------- */
+async function teacherView(){
+  $("#who").innerHTML=`<button class="btn ghost small" id="back">回學生頁</button>`; $("#back").onclick=()=>{location.hash="";};
+  if(!ONLINE){view.innerHTML=`<div class="card"><h2>老師後台</h2><p>還沒有接上 Firebase。請先把 Firebase 設定貼到 index.html 最上方的 <b>FIREBASE_CONFIG</b>。</p>${qrBlock()}</div>`;drawQR();return}
+  const user=fb.auth.currentUser || await new Promise(r=>{const u=fb.auth.onAuthStateChanged(x=>{u();r(x)})});
+  if(!user){
+    view.innerHTML=`<div class="card"><h2>老師登入</h2><div class="lbl">Email</div><input id="em" type="email" autocomplete="username"><div class="lbl">密碼</div><input id="pw" type="password" autocomplete="current-password"><div class="err" id="err"></div><button class="btn" id="li" style="width:100%">登入</button></div>`;
+    $("#li").onclick=async()=>{try{await fb.auth.signInWithEmailAndPassword($("#em").value.trim(),$("#pw").value);teacherView()}catch(e){$("#err").textContent="帳號或密碼不對"}};return;
+  }
+  let book="康軒";
+  view.innerHTML=`<div class="card"><h2>學生名單</h2>
+      <div class="seg" id="tb">${Object.keys(WORDS).map(b=>`<button class="chip" data-b="${b}" aria-pressed="${b===book}">${b}</button>`).join("")}</div>
+      <div class="lbl">一次新增多位（一行一位：英文名字, 家長手機末4碼）</div>
+      <textarea id="bulk" rows="5" placeholder="Oliver, 1234&#10;Amy, 5678"></textarea>
+      <div class="err" id="terr"></div>
+      <button class="btn small" id="add">加入名單</button>
+      <div class="tw" style="margin-top:12px"><table id="roster"></table></div></div>
+    <div class="card"><h2>最近的成績</h2><div class="tw"><table id="recent"></table></div>
+      <div class="lbl">重新開始比賽</div><button class="btn ghost small" id="clr">清除這個課本的排行榜</button><div id="cbox"></div></div>
+    <div class="card"><h2>給學生的 QR code</h2>${qrBlock()}</div>
+    <button class="btn ghost small" id="lo">老師登出</button>`;
+  drawQR();
+  $("#lo").onclick=async()=>{await fb.auth.signOut();teacherView()};
+  view.querySelectorAll("#tb .chip").forEach(c=>c.onclick=()=>{book=c.dataset.b;view.querySelectorAll("#tb .chip").forEach(x=>x.setAttribute("aria-pressed",x===c));loadRoster();loadRecent()});
+  async function loadRoster(){
+    const s=await fb.db.collection("roster").where("book","==",book).get();
+    const list=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.name.localeCompare(b.name));
+    $("#roster").innerHTML=`<tr><th>名字</th><th>重設末4碼</th><th></th></tr>`+list.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td><input data-pin="${x.id}" data-n="${esc(x.name)}" inputmode="numeric" maxlength="4" placeholder="新號碼" style="padding:5px 8px;width:90px"></td><td><button class="btn ghost small" data-del="${x.id}">刪除</button></td></tr>`).join("")+(list.length?"":`<tr><td colspan="3" class="note">還沒有學生</td></tr>`);
+    $("#roster").querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{if(b.dataset.c){await fb.db.collection("roster").doc(b.dataset.del).delete();loadRoster()}else{b.dataset.c=1;b.textContent="確定刪除？";b.style.color="var(--bad)"}});
+    $("#roster").querySelectorAll("[data-pin]").forEach(inp=>inp.onchange=async()=>{if(!/^\d{4}$/.test(inp.value))return;await fb.db.collection("roster").doc(inp.dataset.pin).update({pin:await sha(book+"|"+inp.dataset.n+"|"+inp.value)});inp.value="";inp.placeholder="已更新 ✓"});
+  }
+  async function loadRecent(){
+    const s=await fb.db.collection("scores").where("book","==",book).get();
+    const r=s.docs.map(d=>d.data()).sort((a,b)=>b.at-a.at).slice(0,40);
+    $("#recent").innerHTML=`<tr><th>時間</th><th>名字</th><th>課</th><th>玩法</th><th>分數</th><th>答對</th></tr>`+r.map(x=>`<tr><td>${new Date(x.at).toLocaleString("zh-TW",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})}</td><td>${esc(x.name)}</td><td>${esc(WORDS[x.book]?.[x.unit]?.title||x.unit)}</td><td>${esc(MODES[x.mode]?.name||"")}</td><td>${x.score}</td><td>${x.correct}/${x.total}</td></tr>`).join("")+(r.length?"":`<tr><td colspan="6" class="note">還沒有成績</td></tr>`);
+  }
+  $("#add").onclick=async()=>{
+    const err=$("#terr");err.textContent="";const lines=$("#bulk").value.split("\n").map(l=>l.trim()).filter(Boolean);const bad=[];let n=0;
+    for(const l of lines){const m=l.match(/^(.+?)[,，\s]+(\d{4})$/);if(!m){bad.push(l);continue}const name=m[1].trim();await fb.db.collection("roster").add({name,book,pin:await sha(book+"|"+name+"|"+m[2])});n++}
+    $("#bulk").value=bad.join("\n"); err.textContent=(n?`已加入 ${n} 位。`:"")+(bad.length?`有 ${bad.length} 行格式不對，請改成「名字, 4位數字」。`:""); loadRoster();
+  };
+  $("#clr").onclick=()=>{$("#cbox").innerHTML=`<div class="confirm">會刪掉 ${book} 所有成績和累積積分（名單保留）。<div class="row" style="margin-top:8px"><button class="btn small" id="yes" style="background:var(--bad)">確定清除</button><button class="btn ghost small" id="no">取消</button></div></div>`;
+    $("#no").onclick=()=>$("#cbox").innerHTML="";
+    $("#yes").onclick=async()=>{for(const col of ["scores","totals"]){const s=await fb.db.collection(col).where("book","==",book).get();for(const d of s.docs)await d.ref.delete()}$("#cbox").innerHTML=`<p class="note">已清除 ✓</p>`;loadRecent()}};
+  loadRoster(); loadRecent();
+}
+function studentURL(){return location.href.split("#")[0]}
+function qrBlock(){return `<div id="qr"></div><p class="url" id="qurl">${esc(studentURL())}</p><p class="note">截圖或印出這個 QR code 給學生，掃了就會打開遊戲。</p>`}
+function drawQR(){const el=$("#qr");if(!el)return;if(window.QRCode){el.innerHTML="";new QRCode(el,{text:studentURL(),width:220,height:220,colorDark:"#1B2A4A",colorLight:"#ffffff"})}else el.innerHTML=`<p class="note">QR code 產生器沒有載入</p>`}
+
+/* ---------- 路由 ---------- */
+function route(){
+  if(location.hash==="#teacher") return teacherView();
+  if(!me) return loginView();
+  if(!WORDS[me.book]){me=null;return loginView()}
+  homeView();
+}
+window.addEventListener("hashchange",route);
+(async()=>{try{await initFirebase()}catch(e){view.innerHTML=`<div class="card"><p class="err">連線失敗，請檢查網路後重新整理。</p></div>`;return} route()})();
+</script>
+
+</body></html>
